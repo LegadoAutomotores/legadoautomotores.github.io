@@ -454,6 +454,32 @@
                 </div>
             </div>
 
+            <!-- Financial Total Summary Banner -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="bg-legado-darkBg/90 border border-legado-grayBorder p-4 rounded-2xl flex items-center justify-between shadow-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                            <i class="fa-solid fa-dollar-sign text-base"></i>
+                        </div>
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total en Dólares (USD)</span>
+                            <span id="adminTotalUSD" class="text-xl font-black text-emerald-400">USD 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-legado-darkBg/90 border border-legado-grayBorder p-4 rounded-2xl flex items-center justify-between shadow-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+                            <i class="fa-solid fa-peso-sign text-base"></i>
+                        </div>
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total en Pesos (ARS)</span>
+                            <span id="adminTotalARS" class="text-xl font-black text-purple-300">$ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -1414,10 +1440,20 @@
                 const tbody = document.getElementById('adminVehicleTableBody');
                 if (!tbody) return;
 
+                let totalUSD = 0;
+                let totalARS = 0;
+
                 let html = '';
                 this.vehicles.forEach(v => {
                     const cover = (v.photos && v.photos.length > 0) ? v.photos[0] : 'https://placehold.co/100x100/1c1d24/9ca3af?text=Car';
                     const curr = v.currency || 'USD';
+                    const cleanPrice = parseFloat(String(v.price).replace(/\./g, '').replace(',', '.')) || 0;
+
+                    if (curr === 'USD') {
+                        totalUSD += cleanPrice;
+                    } else if (curr === 'ARS' || curr === 'Pesos') {
+                        totalARS += cleanPrice;
+                    }
 
                     let statusBadge = `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] font-bold">Disponible</span>`;
                     if (v.status === 'reservado') {
@@ -1452,6 +1488,11 @@
                 });
 
                 tbody.innerHTML = html;
+
+                const usdEl = document.getElementById('adminTotalUSD');
+                const arsEl = document.getElementById('adminTotalARS');
+                if (usdEl) usdEl.textContent = `USD ${totalUSD.toLocaleString('es-AR')}`;
+                if (arsEl) arsEl.textContent = `$ ${totalARS.toLocaleString('es-AR')}`;
             }
 
             openVehicleModal(id = null) {
