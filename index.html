@@ -480,6 +480,13 @@
                 </div>
             </div>
 
+            <!-- Admin Search Bar -->
+            <div class="mb-6 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="adminSearchInput" oninput="window.app && window.app.renderAdminTable()" placeholder="Buscar en el stock por marca, modelo o año..." 
+                       class="w-full bg-legado-darkBg text-white pl-11 pr-4 py-3 rounded-2xl border border-legado-grayBorder focus:border-legado-purpleLight focus:outline-none text-sm transition">
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -1440,11 +1447,19 @@
                 const tbody = document.getElementById('adminVehicleTableBody');
                 if (!tbody) return;
 
+                const searchInput = document.getElementById('adminSearchInput');
+                const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
                 let totalUSD = 0;
                 let totalARS = 0;
 
+                const displayVehicles = this.vehicles.filter(v => {
+                    const matchText = (v.brand + ' ' + v.model + ' ' + v.year + ' ' + (v.type || '')).toLowerCase();
+                    return matchText.includes(query);
+                });
+
                 let html = '';
-                this.vehicles.forEach(v => {
+                displayVehicles.forEach(v => {
                     const cover = (v.photos && v.photos.length > 0) ? v.photos[0] : 'https://placehold.co/100x100/1c1d24/9ca3af?text=Car';
                     const curr = v.currency || 'USD';
                     const cleanPrice = parseFloat(String(v.price).replace(/\./g, '').replace(',', '.')) || 0;
